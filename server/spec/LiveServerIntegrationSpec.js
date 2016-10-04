@@ -73,5 +73,12 @@ describe('server', function() {
     });
   });
 
+  it('Should not throw error with OPTIONS request', function(done) {
+    request({method: 'OPTIONS', uri: 'http://127.0.0.1:3000/classes/messages'}, function(error, response, body) {
+      expect(response.statusCode).to.equal(200);
+      done();
+    });
+  });
+
 
 });
