@@ -1,5 +1,5 @@
 //Imports
-var data = require('./classes/messages');
+// var data = require('./classes/messages');
 var fs = require('fs');
 var path = require('path');
 var url = require('url');
@@ -13,7 +13,7 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 var headers = defaultCorsHeaders;
-var idCounter = 0;
+// var idCounter = 0;
 
 
 //this function is passed into create server in basic-server.js
@@ -32,28 +32,57 @@ var requestHandler = function(request, response) {
   };
   var statusCode;
 
-  
+
   if (request.url === '/classes/messages' || request.method === 'OPTIONS') {
+    var jsondata = '';
     if (request.method === 'GET') {
       statusCode = 200;
+      var dataPath = path.join(process.cwd(), '/server/classes/messages.json');
+      fs.readFile(dataPath, 'utf8', function(error, data) {
+        if (error) {
+          console.log(error);
+        } else {
+          jsondata = data;
+          headers['Content-Type'] = 'text/plain'; 
+          response.writeHead(statusCode, headers);
+          response.end(jsondata);
+        }
+      });
+      return;
     } else if (request.method === 'POST') {
       statusCode = 201;
       request.on('data', function(chunk) {
-        //Extend message obj with expected properties
-        chunkObj = _.extend(JSON.parse(chunk), {
-          objectId: idCounter,
-          createdAt: new Date()
+        var dataPath = path.join(process.cwd(), '/server/classes/messages.json');
+        var currentData = {};
+        var newData = '';
+        fs.readFile(dataPath, 'utf8', function(error, data) {
+          if (error) {
+            console.log(error);
+          } else {
+            currentData = JSON.parse(data);
+            var id = 1;
+            //Extend message obj with expected properties
+            if (currentData.results.length > 0) {
+              id = currentData.results[currentData.results.length - 1].objectId + 1;
+            }
+            chunkObj = _.extend(JSON.parse(chunk), {
+              objectId: id,
+              createdAt: new Date()
+            });
+            currentData.results.push(chunkObj);
+            newData = JSON.stringify(currentData);
+            fs.writeFile(dataPath, newData, 'utf8');
+          }
         });
-        data.results.push(chunkObj);
-        idCounter++;
+
       });
     } else {  //If request is OPTIONS...
       statusCode = 200;
       headers['Access-Control-Allow-Credentials'] = false;
     }
-    headers['Content-Type'] = 'application/JSON'; 
+    headers['Content-Type'] = 'text/plain'; 
     response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(data));
+    response.end(JSON.stringify(jsondata));
     return;
 
   } else {
