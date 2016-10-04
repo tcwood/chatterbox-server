@@ -28,6 +28,8 @@ var defaultCorsHeaders = {
 };
 
 var data = require('./classes/messages');
+var headers = defaultCorsHeaders;
+var idCounter = 0;
 
 // var results = [];
 
@@ -49,23 +51,26 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   // The outgoing status.
   var statusCode;
-
   if (request.method === 'GET' && request.url === '/classes/messages') {
     statusCode = 200;
 
   } else if (request.method === 'POST' && request.url === '/classes/messages') {
     statusCode = 201;
-    debugger;
     request.on('data', function(chunk) {
-      data.results.push(chunk.toString());
+      chunkObj = JSON.parse(chunk);
+      chunkObj.objectId = idCounter;
+      idCounter++;
+      chunkObj.createdAt = new Date();
+      data.results.push(chunkObj);
     });
-    console.log(data.results);
+  } else if (request.method === 'OPTIONS') {
+    statusCode = 200;
+    headers['Access-Control-Allow-Credentials'] = false;
   } else {
     statusCode = 404;
   }
 
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
 
   // Tell the client we are sending them plain text.
   //

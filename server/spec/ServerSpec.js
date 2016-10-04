@@ -59,7 +59,7 @@ describe('Node Server Request Listener Function', function() {
   it('Should accept posts to /classes/room', function() {
     var stubMsg = {
       username: 'Jono',
-      message: 'Hello!'
+      message: 'Do my bidding!'
     };
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
@@ -100,22 +100,6 @@ describe('Node Server Request Listener Function', function() {
     expect(messages[0].username).to.equal('Jono');
     expect(messages[0].message).to.equal('Do my bidding!');
     expect(res._ended).to.equal(true);
-
-
-  });
-
-  it('third test', function() {
-    var stubMsg = {
-      username: 'Jono',
-      message: 'Third test!'
-    };
-
-    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
-    var res = new stubs.response();
-
-    handler.requestHandler(req, res);
-
-    expect(res._responseCode).to.equal(201);
 
 
   });

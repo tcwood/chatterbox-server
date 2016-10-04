@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'https://api.parse.com/1/classes/messages/',
+  server: 'http://127.0.0.1:3000/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -60,11 +60,15 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      data: { order: '-createdAt' },
+      // data: order= -createdAt,
       contentType: 'application/json',
       success: function(data) {
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        data = JSON.parse(data);
+
+        if (!data.results || !data.results.length) { 
+          return; 
+        }
 
         // Store messages for caching later
         app.messages = data.results;
@@ -130,7 +134,6 @@ var app = {
         }
       });
     }
-
     // Select the menu option
     app.$roomSelect.val(app.roomname);
   },
